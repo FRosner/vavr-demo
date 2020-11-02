@@ -4,22 +4,42 @@
 package vavr.demo;
 
 import io.vavr.collection.CharSeq;
+import io.vavr.collection.List;
 import io.vavr.collection.Seq;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 
 public class App {
 
   public static void main(String[] args) {
-    Validation<Seq<String>, Person> valid = validatePerson("Frank", 20);
-    System.out.println(valid);
-    Validation<Seq<String>, Person> invalid = validatePerson("Frank!", 15);
-    System.err.println(invalid);
+    List<Integer> divisors = List.of(1,10,5,0,3);
+    System.out.println(divisors.map(i -> div(100, i)));
+    System.out.println(divisors.map(i -> divOption(100, i)));
+    System.out.println(divisors.map(i -> divTry(100, i)));
+    System.out.println(divisors.map(i -> divEither(100, i)));
+
+//    Validation<Seq<String>, Person> valid = validatePerson("Frank", 20);
+//    System.out.println(valid);
+//    Validation<Seq<String>, Person> invalid = validatePerson("Frank!", 15);
+//    System.err.println(invalid);
   }
 
-  public static Try<Person> tryFetchPerson(int id) {
-    return (id % 2 == 0)
-        ? Try.success()
+  public static Option<Integer> div(int a, int b) {
+    return b == 0 ? Option.none() : Option.some(a / b);
+  }
+
+  public static Option<Integer> divOption(int a, int b) {
+    return b == 0 ? Option.none() : Option.some(a / b);
+  }
+
+  public static Try<Integer> divTry(int a, int b) {
+    return Try.of(() -> a / b);
+  }
+
+  public static Either<ComputationError, Integer> divEither(int a, int b) {
+    return divTry(a, b).toEither(ComputationError.DivisionByZero);
   }
 
   public static Validation<Seq<String>, Person> validatePerson(String name, int age) {
@@ -46,4 +66,8 @@ public class App {
 
 record Person(String lastName, int age) {
 
+}
+
+enum ComputationError {
+  DivisionByZero
 }
